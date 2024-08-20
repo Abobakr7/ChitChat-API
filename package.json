@@ -1,0 +1,23 @@
+{
+    "name": "chat-app",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "node --env-file=prod.env src/server.js",
+        "dev": "nodemon --env-file=dev.env src/server.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "cookie-parser": "^1.4.6",
+        "express": "^4.19.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.5.3",
+        "morgan": "^1.10.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.4"
+    }
+}
