@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const bcrypt = require("bcryptjs");
+const ApiError = require("../utils/error/ApiError");
 
 const userSchema = new Schema(
     {
@@ -47,6 +48,19 @@ userSchema.pre("save", async function (next) {
     this.password = await bcrypt.hash(this.password, 8);
     next();
 });
+
+userSchema.statics.findByCredentials = async function (email, password) {
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new ApiError(400, "Wrong credentials");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        throw new ApiError(401, "Wrong credentials");
+    }
+    return user;
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
