@@ -39,6 +39,9 @@ const userSchema = new Schema(
         avatar: {
             type: String,
         },
+        resetPasswordToken: {
+            type: String,
+        },
     },
     { timestamps: true }
 );
