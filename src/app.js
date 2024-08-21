@@ -6,6 +6,7 @@ const express = require("express");
 
 const ApiError = require("../utils/error/ApiError");
 const globalErrorHandler = require("../middlewares/globalErrorHandler");
+const userAuthRoute = require("../routes/userAuthRoute");
 
 const app = express();
 
@@ -18,8 +19,10 @@ app.use(cookieParser());
 app.use(express.json());
 
 // routes
+app.use("/api/v1/auth", userAuthRoute);
+
 app.all("*", (req, res, next) => {
-    next(ApiError(404, `Can't find ${req.originalUrl}`));
+    next(new ApiError(404, `Can't find ${req.method} ${req.originalUrl}`));
 });
 
 // global error handler
