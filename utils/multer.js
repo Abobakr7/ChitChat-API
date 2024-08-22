@@ -2,7 +2,11 @@ const multer = require("multer");
 const ApiError = require("./error/ApiError");
 
 module.exports = multer({
-    storage: multer.diskStorage({}),
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, "uploads/");
+        },
+    }),
     fileFilter: (req, file, cb) => {
         const ext = file.mimetype.split("/")[1];
         if (ext !== "jpeg" && ext !== "jpg" && ext !== "png") {
