@@ -73,7 +73,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
         process.env.NODE_ENV === "development"
             ? `http://localhost:${
                   process.env.PORT || 3030
-              }/reset-password?token=${resetToken}`
+              }/api/v1/auth/reset-password?token=${resetToken}`
             : `https://chat-app.com/reset-password?token=${resetToken}`;
 
     await passwordResetEmail(user, link);
