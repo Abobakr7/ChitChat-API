@@ -8,6 +8,7 @@ const ApiError = require("../utils/error/ApiError");
 const globalErrorHandler = require("../middlewares/globalErrorHandler");
 const userAuthRoute = require("../routes/userAuthRoute");
 const userRoute = require("../routes/userRoute");
+const friendsRoute = require("../routes/friendsRoute");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 // routes
 app.use("/api/v1/auth", userAuthRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/friends", friendsRoute);
 
 app.all("*", (req, res, next) => {
     next(new ApiError(404, `Can't find ${req.method} ${req.originalUrl}`));
