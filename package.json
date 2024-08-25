@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "node --env-file=prod.env src/server.js",
-        "dev": "nodemon --env-file=dev.env src/server.js"
+        "start": "env NODE_ENV=production node --env-file=.env src/server.js",
+        "dev": "env NODE_ENV=development nodemon --env-file=.env src/server.js"
     },
     "keywords": [],
     "author": "",
