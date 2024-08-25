@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const faker = require("faker");
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Request = require("../models/Request");
 
@@ -15,15 +16,16 @@ const seedDatabase = async () => {
 
         // Create users
         const users = [];
+        const passwords = [];
         for (let i = 0; i < 10; i++) {
+            const realPassword = faker.internet.password();
+            passwords.push(realPassword);
+            const hashedPassword = await bcrypt.hash(realPassword, 8);
             const user = new User({
                 name: faker.name.findName(),
                 email: faker.internet.email(),
-                password: faker.internet.password(),
-                status: faker.random.arrayElement(["online", "offline"]),
-                lastSeen: faker.date.recent(),
+                password: hashedPassword,
                 avatar: faker.image.avatar(),
-                resetPasswordToken: faker.datatype.uuid(),
             });
             users.push(user);
         }
@@ -47,6 +49,7 @@ const seedDatabase = async () => {
         }
         await Request.insertMany(requests);
         console.log("Requests inserted");
+        console.log(passwords);
     } catch (error) {
         console.error("Error seeding database:", error);
     } finally {
