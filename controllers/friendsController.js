@@ -96,9 +96,13 @@ exports.removeFriend = asyncHandler(async (req, res) => {
     if (!req.user.friends.includes(id)) {
         throw new ApiError(400, "User is not a friend");
     }
-    // req.user.friends = req.user.friends.filter((friendId) => friendId !== id);
+    if (!friend.friends.includes(req.user._id)) {
+        throw new ApiError(400, "User is not a friend");
+    }
     req.user.friends.pull(id);
     await req.user.save();
+    friend.friends.pull(req.user._id);
+    await friend.save();
     res.status(200).json({ status: "success", data: req.user });
 });
 
@@ -135,13 +139,16 @@ exports.acceptFriendRequest = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Request not found");
     }
     if (request.requestee.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "Unauthorized");
+        throw new ApiError(400, "You can't accept your own request");
     }
     if (req.user.friends.includes(request.requester)) {
         throw new ApiError(400, "User is already a friend");
     }
     req.user.friends.push(request.requester);
     await req.user.save();
+    await User.findByIdAndUpdate(request.requester, {
+        $push: { friends: req.user._id },
+    });
     res.status(200).json({ status: "success" });
 });
 
@@ -157,7 +164,7 @@ exports.declineFriendRequest = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Request not found");
     }
     if (request.requestee.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "Unauthorized");
+        throw new ApiError(403, "You can't decline your own request");
     }
     res.status(200).json({ status: "success" });
 });
