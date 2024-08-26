@@ -9,6 +9,7 @@ const globalErrorHandler = require("../middlewares/globalErrorHandler");
 const userAuthRoute = require("../routes/userAuthRoute");
 const userRoute = require("../routes/userRoute");
 const friendsRoute = require("../routes/friendsRoute");
+const chatRoute = require("../routes/chatRoute");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use("/api/v1/auth", userAuthRoute);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/friends", friendsRoute);
+app.use("/api/v1/chat", chatRoute);
 
 app.all("*", (req, res, next) => {
     next(new ApiError(404, `Can't find ${req.method} ${req.originalUrl}`));
