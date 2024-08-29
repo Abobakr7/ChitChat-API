@@ -7,7 +7,7 @@ exports.MongoConnect = async () => {
         console.log("Connected to MongoDB Successfully");
     } catch (err) {
         console.error("Connection to MongoDB Faild");
-        console.error("Warning: ", err);
+        console.error("MongoDB Error: ", err);
         process.kill(process.pid, "SIGTERM");
     }
 };
