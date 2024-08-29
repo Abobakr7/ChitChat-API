@@ -21,3 +21,15 @@ exports.RedisDisconnect = async () => {
     await client.disconnect();
     console.log("Disconnected from Redis Successfully");
 };
+
+exports.setOnlineUser = async (userId, socketId) => {
+    await client.set(userId, socketId);
+};
+
+exports.getOnlineUser = async (userId) => {
+    return await client.get(userId);
+};
+
+exports.removeOnlineUser = async (userId) => {
+    await client.del(userId);
+};
