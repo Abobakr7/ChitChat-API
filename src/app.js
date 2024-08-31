@@ -1,5 +1,12 @@
-require("./database/database");
+const { MongoConnect } = require("./database/mongo-db");
+const {
+    RedisConnect,
+    setOnlineUser,
+    getOnlineUser,
+    removeOnlineUser,
+} = require("./database/redis-db");
 
+const { createServer } = require("http");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const express = require("express");
@@ -12,6 +19,12 @@ const friendsRoute = require("../routes/friendsRoute");
 const chatRoute = require("../routes/chatRoute");
 
 const app = express();
+const server = createServer(app);
+const io = require("socket.io")(server);
+
+// connect to MongoDB and Redis
+MongoConnect();
+RedisConnect();
 
 // middleware
 if (process.env.NODE_ENV === "development") {
@@ -31,9 +44,32 @@ app.all("*", (req, res, next) => {
     next(new ApiError(404, `Can't find ${req.method} ${req.originalUrl}`));
 });
 
+// socket.io
+io.on("connection", (socket) => {
+    console.log("New connection");
+
+    socket.on("connection", async (userId) => {
+        socket.userId = userId;
+        await setOnlineUser(userId, socket.id);
+    });
+
+    socket.on("sendMessage", async (data) => {
+        const { receiverId, message } = data;
+        const receiverSocketId = await getOnlineUser(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("message", {
+                senderId: data.senderId,
+                message,
+            });
+        }
+    });
+
+    socket.on("disconnect", async () => {
+        await removeOnlineUser(socket.userId);
+    });
+});
+
 // global error handler
 app.use(globalErrorHandler);
 
-// web sockets
-
-module.exports = app;
+module.exports = server;
