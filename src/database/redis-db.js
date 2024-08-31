@@ -1,6 +1,10 @@
 const { createClient } = require("redis");
 
-const client = createClient({ url: process.env.REDIS_URI });
+const REDIS_URI = process.env.NODE_ENV === "production" ?
+                    process.env.REDIS_URI :
+                    process.env.TEST_REDIS_URI;
+
+const client = createClient({ url: REDIS_URI });
 client.on("error", (error) => {
     console.error("Redis Client Error: ", error);
     process.kill(process.pid, "SIGTERM");
