@@ -17,7 +17,6 @@ exports.signup = asyncHandler(async (req, res) => {
     );
     res.cookie("token", token, {
         httpOnly: true,
-        secure: true,
     });
     res.status(201).json({ status: "success", data: user });
 });
@@ -36,7 +35,6 @@ exports.login = asyncHandler(async (req, res) => {
     );
     res.cookie("token", token, {
         httpOnly: true,
-        secure: true,
     });
     res.status(200).json({ status: "success", data: user });
 });
