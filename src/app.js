@@ -9,6 +9,7 @@ const {
 const { createServer } = require("http");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
+const cors = require("cors");
 const express = require("express");
 
 const ApiError = require("../utils/error/ApiError");
@@ -25,6 +26,8 @@ const io = require("socket.io")(server);
 // connect to MongoDB and Redis
 MongoConnect();
 RedisConnect();
+
+app.use(cors());
 
 // middleware
 if (process.env.NODE_ENV === "development") {
