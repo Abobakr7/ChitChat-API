@@ -11,12 +11,11 @@ const jwt = require("jsonwebtoken");
  */
 exports.signup = asyncHandler(async (req, res) => {
     const user = await User.create(req.body);
-    const token = jwt.sign(
-        { _id: user._id.toString() },
-        process.env.JWT_SECRET
-    );
+    const token = jwt.sign({ _id: user._id.toString() },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d"});
     res.cookie("token", token, {
-        httpOnly: true,
+        httpOnly: true, secure: true, sameSite: "none", maxAge: 24 * 60 * 60 * 1000
     });
     res.status(201).json({ status: "success", data: user });
 });
@@ -29,12 +28,11 @@ exports.signup = asyncHandler(async (req, res) => {
 exports.login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findByCredentials(email, password);
-    const token = jwt.sign(
-        { _id: user._id.toString() },
-        process.env.JWT_SECRET
-    );
+    const token = jwt.sign({ _id: user._id.toString() },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d"});
     res.cookie("token", token, {
-        httpOnly: true,
+        httpOnly: true, secure: true, sameSite: "none", maxAge: 24 * 60 * 60 * 1000
     });
     res.status(200).json({ status: "success", data: user });
 });
