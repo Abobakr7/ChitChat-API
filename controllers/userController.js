@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const ApiError = require("../utils/error/ApiError");
 const asyncHandler = require("../utils/error/asyncHandler");
+const sanitizeUser = require("../utils/sanitizeUser");
 
 /**
  * @desc    Get user profile
@@ -8,7 +9,7 @@ const asyncHandler = require("../utils/error/asyncHandler");
  * @access  Private
  */
 exports.getProfile = asyncHandler(async (req, res) => {
-    res.status(200).json({ status: "success", data: req.user });
+    res.status(200).json({ status: "success", user: sanitizeUser(req.user) });
 });
 
 /**
@@ -27,7 +28,7 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     }
     updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
-    res.status(200).json({ status: "success", data: req.user });
+    res.status(200).json({ status: "success", user: sanitizeUser(req.user) });
 });
 
 /**
@@ -37,10 +38,8 @@ exports.updateProfile = asyncHandler(async (req, res) => {
  */
 exports.getUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const user = await User.findById(id).select(
-        "-password -__v -friends -email -updatedAt -resetPasswordToken"
-    );
-    res.status(200).json({ status: "success", data: user });
+    const user = await User.findById(id);
+    res.status(200).json({ status: "success", user: sanitizeUser(user) });
 });
 
 /**
@@ -66,6 +65,6 @@ exports.searchUsers = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: "success",
         length: users.length,
-        data: users,
+        users,
     });
 });
