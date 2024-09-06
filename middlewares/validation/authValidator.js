@@ -8,6 +8,7 @@ exports.signupValidator = [
         .trim()
         .notEmpty()
         .withMessage("Username is required")
+        .toLowerCase()
         .custom(async (val) => {
             const user = await User.findOne({ username: val });
             if (user) {
@@ -20,6 +21,7 @@ exports.signupValidator = [
         .withMessage("Email is required")
         .isEmail()
         .withMessage("Invalid email format")
+        .toLowerCase()
         .custom(async (val) => {
             const user = await User.findOne({ email: val });
             if (user) {
@@ -35,18 +37,11 @@ exports.signupValidator = [
 ];
 
 exports.loginValidator = [
-    body("email")
-        .optional()
+    body("identifier")
         .trim()
         .notEmpty()
-        .withMessage("Email is required")
-        .isEmail()
-        .withMessage("Invalid email format"),
-    body("username")
-        .optional()
-        .trim()
-        .notEmpty()
-        .withMessage("Username is required"),
+        .toLowerCase()
+        .withMessage("Username or email is required"),
     body("password").notEmpty().withMessage("Password is required"),
     validate,
 ];
@@ -55,6 +50,7 @@ exports.forgotPasswordValidator = [
     body("email")
         .trim()
         .notEmpty()
+        .toLowerCase()
         .withMessage("Email is required")
         .isEmail()
         .withMessage("Invalid email format"),
