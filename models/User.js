@@ -9,6 +9,10 @@ const userSchema = new Schema(
             type: String,
             required: [true, "Name is required"],
         },
+        username: {
+            type: String,
+            required: [true, "Username is required"],
+        },
         email: {
             type: String,
             required: [true, "Email is required"],
@@ -49,16 +53,24 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.statics.findByCredentials = async function (email, password) {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select(
+        "-friends -resetPasswordToken -__v -updatedAt"
+    );
     if (!user) {
-        throw new ApiError(400, "Wrong credentials");
+        throw new ApiError(401, "Wrong credentials");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
         throw new ApiError(401, "Wrong credentials");
     }
-    return user;
+    return {
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        _id: user._id,
+        createdAt: user.createdAt,
+    };
 };
 
 const User = mongoose.model("User", userSchema);
