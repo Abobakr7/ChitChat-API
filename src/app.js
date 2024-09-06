@@ -27,7 +27,10 @@ const io = require("socket.io")(server);
 MongoConnect();
 RedisConnect();
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.FE_URL,
+    credentials: true
+}));
 
 // middleware
 if (process.env.NODE_ENV === "development") {
