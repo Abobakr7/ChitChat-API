@@ -4,6 +4,16 @@ const User = require("../../models/User");
 
 exports.signupValidator = [
     body("name").trim().notEmpty().withMessage("Name is required"),
+    body("username")
+        .trim()
+        .notEmpty()
+        .withMessage("Username is required")
+        .custom(async (val) => {
+            const user = await User.findOne({ username: val });
+            if (user) {
+                throw new Error("Username is already taken");
+            }
+        }),
     body("email")
         .trim()
         .notEmpty()
@@ -26,11 +36,17 @@ exports.signupValidator = [
 
 exports.loginValidator = [
     body("email")
+        .optional()
         .trim()
         .notEmpty()
         .withMessage("Email is required")
         .isEmail()
         .withMessage("Invalid email format"),
+    body("username")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage("Username is required"),
     body("password").notEmpty().withMessage("Password is required"),
     validate,
 ];
