@@ -23,10 +23,6 @@ const userSchema = new Schema(
             type: String,
             required: [true, "Password is required"],
         },
-        status: {
-            type: String,
-            enum: ["online", "offline"],
-        },
         lastSeen: {
             type: Date,
         },
@@ -53,10 +49,10 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-userSchema.statics.findByCredentials = async function (email, password) {
-    const user = await User.findOne({ email }).select(
-        "-friends -resetPasswordToken -__v -updatedAt"
-    );
+userSchema.statics.findByCredentials = async function (identifier, password) {
+    const user = await User.findOne({
+        $or: [{ email: identifier }, { username: identifier }],
+    });
     if (!user) {
         throw new ApiError(401, "Wrong credentials");
     }
@@ -65,13 +61,7 @@ userSchema.statics.findByCredentials = async function (email, password) {
     if (!isMatch) {
         throw new ApiError(401, "Wrong credentials");
     }
-    return {
-        email: user.email,
-        username: user.username,
-        name: user.name,
-        _id: user._id,
-        createdAt: user.createdAt,
-    };
+    return user;
 };
 
 const User = mongoose.model("User", userSchema);
