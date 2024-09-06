@@ -2,6 +2,7 @@ const User = require("../models/User");
 const ApiError = require("../utils/error/ApiError");
 const asyncHandler = require("../utils/error/asyncHandler");
 const { passwordResetEmail } = require("../utils/emails");
+const sanitizeUser = require("../utils/sanitizeUser");
 const jwt = require("jsonwebtoken");
 
 /**
@@ -11,13 +12,18 @@ const jwt = require("jsonwebtoken");
  */
 exports.signup = asyncHandler(async (req, res) => {
     const user = await User.create(req.body);
-    const token = jwt.sign({ _id: user._id.toString() },
-            process.env.JWT_SECRET,
-            { expiresIn: "1d"});
+    const token = jwt.sign(
+        { _id: user._id.toString() },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+    );
     res.cookie("token", token, {
-        httpOnly: true, secure: true, sameSite: "none", maxAge: 24 * 60 * 60 * 1000
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000,
     });
-    res.status(201).json({ status: "success", data: user });
+    res.status(201).json({ status: "success", user: sanitizeUser(user) });
 });
 
 /**
@@ -26,15 +32,20 @@ exports.signup = asyncHandler(async (req, res) => {
  * @access  Public
  */
 exports.login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findByCredentials(email, password);
-    const token = jwt.sign({ _id: user._id.toString() },
-            process.env.JWT_SECRET,
-            { expiresIn: "1d"});
+    const { identifier, password } = req.body;
+    const user = await User.findByCredentials(identifier, password);
+    const token = jwt.sign(
+        { _id: user._id.toString() },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+    );
     res.cookie("token", token, {
-        httpOnly: true, secure: true, sameSite: "none", maxAge: 24 * 60 * 60 * 1000
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000,
     });
-    res.status(200).json({ status: "success", data: user });
+    res.status(200).json({ status: "success", user: sanitizeUser(user) });
 });
 
 /**
