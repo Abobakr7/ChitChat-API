@@ -17,6 +17,17 @@ exports.updateProfileValidator = [
                 throw new Error("Email is already in use");
             }
         }),
+    body("username")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage("Username is required")
+        .custom(async (val) => {
+            const user = await User.findOne({ username: val });
+            if (user) {
+                throw new Error("Username is already taken");
+            }
+        }),
     body("password")
         .optional()
         .notEmpty()
@@ -40,7 +51,12 @@ exports.getUserValidator = [
 ];
 
 exports.searchUsersValidator = [
-    query("name").trim().notEmpty().withMessage("Name is required"),
+    query("name").optional().trim().notEmpty().withMessage("Name is required"),
+    query("username")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage("Username is required"),
     query("limit").optional().isInt().withMessage("Limit must be an integer"),
     query("page").optional().isInt().withMessage("Page must be an integer"),
     validate,
