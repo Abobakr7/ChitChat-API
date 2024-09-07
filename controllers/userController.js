@@ -2,6 +2,7 @@ const User = require("../models/User");
 const ApiError = require("../utils/error/ApiError");
 const asyncHandler = require("../utils/error/asyncHandler");
 const sanitizeUser = require("../utils/sanitizeUser");
+const bcrypt = require("bcryptjs");
 
 /**
  * @desc    Get user profile
@@ -29,6 +30,22 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
     res.status(200).json({ status: "success", user: sanitizeUser(req.user) });
+});
+
+/**
+ * @desc    Update user password
+ * @route   PATCH /api/v1/users/me/password
+ * @access  Private
+ */
+exports.updatePassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const isMatch = await bcrypt.compare(oldPassword, req.user.password);
+    if (!isMatch) {
+        throw new ApiError(400, "Old password is incorrect");
+    }
+    req.user.password = newPassword;
+    await req.user.save();
+    res.status(200).json({ status: "success" });
 });
 
 /**
