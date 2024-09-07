@@ -22,11 +22,7 @@ exports.updateProfileValidator = [
 ];
 
 exports.updatePasswordValidator = [
-    body("oldPassword")
-        .notEmpty()
-        .withMessage("Old password is required")
-        .isLength({ min: 6, max: 26 })
-        .withMessage("Password must be between 6 and 26 characters"),
+    body("oldPassword").notEmpty().withMessage("Old password is required"),
     body("newPassword")
         .notEmpty()
         .withMessage("New password is required")
