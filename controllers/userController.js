@@ -14,12 +14,12 @@ exports.getProfile = asyncHandler(async (req, res) => {
 
 /**
  * @desc    Update user profile
- * @route   PUT /api/v1/users/me
+ * @route   PATCH /api/v1/users/me
  * @access  Private
  */
 exports.updateProfile = asyncHandler(async (req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "email", "password"];
+    const allowedUpdates = ["name", "email", "username"];
     const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
     );

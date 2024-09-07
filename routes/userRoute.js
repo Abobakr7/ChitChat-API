@@ -15,7 +15,7 @@ const router = require("express").Router();
 router
     .route("/me")
     .get(auth, getProfile)
-    .put(auth, updateProfileValidator, updateProfile);
+    .patch(auth, updateProfileValidator, updateProfile);
 router.get("/search", auth, searchUsersValidator, searchUsers);
 router.get("/:id", auth, getUserValidator, getUser);
 
