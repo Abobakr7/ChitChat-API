@@ -9,7 +9,7 @@ const asyncHandler = require("../utils/error/asyncHandler");
  * @access  Private
  */
 exports.getFriends = asyncHandler(async (req, res) => {
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
     await req.user.populate({
@@ -23,7 +23,7 @@ exports.getFriends = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: "success",
         length: req.user.friends.length,
-        data: req.user.friends,
+        friends: req.user.friends,
     });
 });
 
@@ -50,7 +50,7 @@ exports.searchFriends = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: "success",
         length: req.user.friends.length,
-        data: req.user.friends,
+        friends: req.user.friends,
     });
 });
 
@@ -103,7 +103,7 @@ exports.removeFriend = asyncHandler(async (req, res) => {
     await req.user.save();
     friend.friends.pull(req.user._id);
     await friend.save();
-    res.status(200).json({ status: "success", data: req.user });
+    res.status(200).json({ status: "success" });
 });
 
 /**
@@ -112,7 +112,7 @@ exports.removeFriend = asyncHandler(async (req, res) => {
  * @access  Private
  */
 exports.getFriendsRequests = asyncHandler(async (req, res) => {
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
     const requests = await Request.find({ requestee: req.user._id })
@@ -123,7 +123,7 @@ exports.getFriendsRequests = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: "success",
         length: requests.length,
-        data: requests,
+        requests: requests,
     });
 });
 
