@@ -11,23 +11,13 @@ exports.updateProfileValidator = [
         .withMessage("Email is required")
         .isEmail()
         .withMessage("Invalid email format")
-        .custom(async (val) => {
-            const user = await User.findOne({ email: val });
-            if (user) {
-                throw new Error("Email is already in use");
-            }
-        }),
+        .toLowerCase(),
     body("username")
         .optional()
         .trim()
         .notEmpty()
         .withMessage("Username is required")
-        .custom(async (val) => {
-            const user = await User.findOne({ username: val });
-            if (user) {
-                throw new Error("Username is already taken");
-            }
-        }),
+        .toLowerCase(),
     validate,
 ];
 
