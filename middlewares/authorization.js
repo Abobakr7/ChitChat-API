@@ -6,7 +6,7 @@ const asyncHandler = require("../utils/error/asyncHandler");
 exports.auth = asyncHandler(async (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-        throw new ApiError(401, "Please authenticate");
+        throw new ApiError(403, "Please authenticate");
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET, (err) => {
         if (err) {
