@@ -19,15 +19,28 @@ exports.getProfile = asyncHandler(async (req, res) => {
  * @access  Private
  */
 exports.updateProfile = asyncHandler(async (req, res) => {
-    const updates = Object.keys(req.body);
+    const { name, email, username } = req.body;
     const allowedUpdates = ["name", "email", "username"];
-    const isValidOperation = updates.every((update) =>
-        allowedUpdates.includes(update)
-    );
-    if (!isValidOperation) {
-        throw new ApiError(400, "Invalid updates!");
+    if (!name && !email && !username) {
+        throw new ApiError(400, "No updates were provided");
     }
-    updates.forEach((update) => (req.user[update] = req.body[update]));
+    if (email && email !== req.user.email) {
+        const user = await User.findOne({ email });
+        if (user) {
+            throw new ApiError(400, "Email is already in use");
+        }
+    }
+    if (username && username !== req.user.username) {
+        const user = await User.findOne({ username });
+        if (user) {
+            throw new ApiError(400, "Username is already in use");
+        }
+    }
+    allowedUpdates.forEach((update) => {
+        if (req.body[update]) {
+            req.user[update] = req.body[update];
+        }
+    });
     await req.user.save();
     res.status(200).json({ status: "success", user: sanitizeUser(req.user) });
 });
