@@ -28,12 +28,6 @@ exports.updateProfileValidator = [
                 throw new Error("Username is already taken");
             }
         }),
-    body("password")
-        .optional()
-        .notEmpty()
-        .withMessage("Password is required")
-        .isLength({ min: 6, max: 26 })
-        .withMessage("Password must be between 6 and 26 characters"),
     validate,
 ];
 
