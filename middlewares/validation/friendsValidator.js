@@ -6,8 +6,7 @@ exports.idValidator = [
     validate,
 ];
 
-exports.searchFriendValidator = [
-    query("name").trim().notEmpty().withMessage("Name is required"),
+exports.getFriendValidator = [
     query("limit").optional().isInt().withMessage("Limit must be an integer"),
     query("page").optional().isInt().withMessage("Page must be an integer"),
     validate,
