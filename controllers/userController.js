@@ -1,8 +1,33 @@
 const User = require("../models/User");
+const Request = require("../models/Request");
 const ApiError = require("../utils/error/ApiError");
 const asyncHandler = require("../utils/error/asyncHandler");
 const sanitizeUser = require("../utils/sanitizeUser");
 const bcrypt = require("bcryptjs");
+
+/**
+ * @desc    Set friendship status
+ * @param   {Object} currentUser
+ * @param   {Array} users
+ * @return  {Array} users after setting friendship status
+ */
+async function setFriendShipStatus(currentUser, users) {
+    const setIsFriend = users.map((user) => {
+        const isFriend = currentUser.friends.includes(user._id);
+        return { ...user.toObject(), isFriend };
+    });
+    const setRequestSent = [];
+    for await (const user of setIsFriend) {
+        const request = await Request.findOne({
+            $or: [
+                { requester: currentUser._id, requestee: user._id },
+                { requester: user._id, requestee: currentUser._id },
+            ],
+        });
+        setRequestSent.push({ ...user, requestSent: !!request });
+    }
+    return setRequestSent;
+}
 
 /**
  * @desc    Get user profile
@@ -78,23 +103,38 @@ exports.getUser = asyncHandler(async (req, res) => {
  * @access  Private
  */
 exports.searchUsers = asyncHandler(async (req, res) => {
-    const { name } = req.query;
+    const { searchQuery } = req.query;
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
 
-    const users = await User.find({ name: { $regex: name, $options: "i" } })
+    const count = await User.countDocuments({
+        $or: [
+            { name: { $regex: searchQuery, $options: "i" } },
+            { username: { $regex: searchQuery, $options: "i" } },
+        ],
+        _id: { $ne: req.user._id },
+    });
+    const totalPages = Math.ceil(count / limit);
+
+    const users = await User.find({
+        $or: [
+            { name: { $regex: searchQuery, $options: "i" } },
+            { username: { $regex: searchQuery, $options: "i" } },
+        ],
+        _id: { $ne: req.user._id },
+    })
         .limit(limit)
         .skip(skip)
-        .select(
-            "-password -__v -friends -email -updatedAt -resetPasswordToken"
-        );
-    if (!users) {
+        .select("-password -__v -email -updatedAt -resetPasswordToken");
+    if (!users || users.length === 0) {
         throw new ApiError(404, "No users were found");
     }
+    const updatedUsers = await setFriendShipStatus(req.user, users);
+
     res.status(200).json({
         status: "success",
-        length: users.length,
-        users,
+        totalPages,
+        users: updatedUsers,
     });
 });
