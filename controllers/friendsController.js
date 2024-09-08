@@ -83,10 +83,10 @@ exports.removeFriend = asyncHandler(async (req, res) => {
     if (!friend) {
         throw new ApiError(404, "User not found");
     }
-    if (!req.user.friends.includes(id)) {
-        throw new ApiError(400, "User is not a friend");
-    }
-    if (!friend.friends.includes(req.user._id)) {
+    if (
+        !req.user.friends.includes(id) ||
+        !friend.friends.includes(req.user._id)
+    ) {
         throw new ApiError(400, "User is not a friend");
     }
     req.user.friends.pull(id);
@@ -148,7 +148,7 @@ exports.acceptFriendRequest = asyncHandler(async (req, res) => {
 
 /**
  * @desc    Decline a friend request
- * @route   POST /api/v1/friends/requests/:id/decline
+ * @route   DELETE /api/v1/friends/requests/:id/decline
  * @access  Private
  */
 exports.declineFriendRequest = asyncHandler(async (req, res) => {

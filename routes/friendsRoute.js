@@ -20,6 +20,6 @@ router
     .delete(auth, idValidator, removeFriend);
 router.get("/requests", auth, getFriendsRequests);
 router.post("/requests/:id/accept", auth, idValidator, acceptFriendRequest);
-router.post("/requests/:id/decline", auth, idValidator, declineFriendRequest);
+router.delete("/requests/:id/decline", auth, idValidator, declineFriendRequest);
 
 module.exports = router;
