@@ -23,7 +23,8 @@ const seedDatabase = async () => {
             const hashedPassword = await bcrypt.hash(realPassword, 8);
             const user = new User({
                 name: faker.name.findName(),
-                email: faker.internet.email(),
+                email: faker.internet.email().toLowerCase(),
+                username: faker.internet.userName().toLowerCase(),
                 password: hashedPassword,
                 avatar: faker.image.avatar(),
             });
