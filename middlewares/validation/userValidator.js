@@ -45,12 +45,6 @@ exports.getUserValidator = [
 ];
 
 exports.searchUsersValidator = [
-    query("name").optional().trim().notEmpty().withMessage("Name is required"),
-    query("username")
-        .optional()
-        .trim()
-        .notEmpty()
-        .withMessage("Username is required"),
     query("limit").optional().isInt().withMessage("Limit must be an integer"),
     query("page").optional().isInt().withMessage("Page must be an integer"),
     validate,
