@@ -4,31 +4,6 @@ const ApiError = require("../utils/error/ApiError");
 const asyncHandler = require("../utils/error/asyncHandler");
 
 /**
- * @desc    Get list of friends
- * @route   GET /api/v1/friends
- * @access  Private
- */
-exports.getFriends = asyncHandler(async (req, res) => {
-    const limit = parseInt(req.query.limit) || 10;
-    const page = parseInt(req.query.page) || 1;
-    const skip = (page - 1) * limit;
-    const totalPages = Math.ceil(req.user.friends.length / limit);
-    await req.user.populate({
-        path: "friends",
-        select: "-password -__v -friends -email -updatedAt -resetPasswordToken",
-        options: {
-            limit,
-            skip,
-        },
-    });
-    res.status(200).json({
-        status: "success",
-        totalPages,
-        friends: req.user.friends,
-    });
-});
-
-/**
  * @desc    Search friends by their names
  * @route   GET /api/v1/friends/search
  * @access  Private

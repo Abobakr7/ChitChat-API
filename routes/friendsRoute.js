@@ -14,7 +14,6 @@ const {
 const { auth } = require("../middlewares/authorization");
 const router = require("express").Router();
 
-router.get("/", auth, getFriends);
 router.get("/search", auth, searchFriendValidator, searchFriends);
 router
     .route("/:id")
