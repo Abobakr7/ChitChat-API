@@ -12,6 +12,7 @@ exports.getFriends = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
+    const totalPages = Math.ceil(req.user.friends.length / limit);
     await req.user.populate({
         path: "friends",
         select: "-password -__v -friends -email -updatedAt -resetPasswordToken",
@@ -22,7 +23,7 @@ exports.getFriends = asyncHandler(async (req, res) => {
     });
     res.status(200).json({
         status: "success",
-        length: req.user.friends.length,
+        totalPages,
         friends: req.user.friends,
     });
 });
@@ -33,14 +34,28 @@ exports.getFriends = asyncHandler(async (req, res) => {
  * @access  Private
  */
 exports.searchFriends = asyncHandler(async (req, res) => {
-    const { name } = req.query;
+    const { searchQuery } = req.query;
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
 
+    const count = await User.countDocuments({
+        _id: { $in: req.user.friends },
+        $or: [
+            { name: { $regex: searchQuery, $options: "i" } },
+            { username: { $regex: searchQuery, $options: "i" } },
+        ],
+    });
+    const totalPages = Math.ceil(count / limit);
+
     await req.user.populate({
         path: "friends",
-        match: { name: { $regex: name, $options: "i" } },
+        match: {
+            $or: [
+                { name: { $regex: searchQuery, $options: "i" } },
+                { username: { $regex: searchQuery, $options: "i" } },
+            ],
+        },
         select: "-password -__v -friends -email -updatedAt -resetPasswordToken",
         options: {
             limit,
@@ -49,7 +64,7 @@ exports.searchFriends = asyncHandler(async (req, res) => {
     });
     res.status(200).json({
         status: "success",
-        length: req.user.friends.length,
+        totalPages,
         friends: req.user.friends,
     });
 });
@@ -115,6 +130,10 @@ exports.getFriendsRequests = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
+    const count = await Request.countDocuments({
+        requestee: req.user._id,
+    });
+    const totalPages = Math.ceil(count / limit);
     const requests = await Request.find({ requestee: req.user._id })
         .populate("requester", "-password -__v -friends -email -updatedAt")
         .select("-requestee -updatedAt -__v")
@@ -122,7 +141,7 @@ exports.getFriendsRequests = asyncHandler(async (req, res) => {
         .limit(limit);
     res.status(200).json({
         status: "success",
-        length: requests.length,
+        totalPages,
         requests: requests,
     });
 });
