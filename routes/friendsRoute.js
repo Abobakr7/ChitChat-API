@@ -1,6 +1,5 @@
 const {
     getFriends,
-    searchFriends,
     addFriend,
     removeFriend,
     getFriendsRequests,
@@ -9,12 +8,12 @@ const {
 } = require("../controllers/friendsController");
 const {
     idValidator,
-    searchFriendValidator,
+    getFriendValidator,
 } = require("../middlewares/validation/friendsValidator");
 const { auth } = require("../middlewares/authorization");
 const router = require("express").Router();
 
-router.get("/search", auth, searchFriendValidator, searchFriends);
+router.get("/", auth, getFriendValidator, getFriends);
 router
     .route("/:id")
     .post(auth, idValidator, addFriend)

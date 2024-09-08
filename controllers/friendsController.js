@@ -4,11 +4,11 @@ const ApiError = require("../utils/error/ApiError");
 const asyncHandler = require("../utils/error/asyncHandler");
 
 /**
- * @desc    Search friends by their names
- * @route   GET /api/v1/friends/search
+ * @desc    Get friends and can search them by their name or username
+ * @route   GET /api/v1/friends
  * @access  Private
  */
-exports.searchFriends = asyncHandler(async (req, res) => {
+exports.getFriends = asyncHandler(async (req, res) => {
     const { searchQuery } = req.query;
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
