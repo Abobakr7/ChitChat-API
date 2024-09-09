@@ -16,11 +16,11 @@ const { auth } = require("../middlewares/authorization");
 const router = require("express").Router();
 
 router
-    .route("/conversation")
+    .route("/conversations")
     .get(auth, getConversations)
     .post(auth, createConvoValidator, createConversation);
 router
-    .route("/conversation/:id")
+    .route("/conversations/:id")
     .get(auth, idValidator, getConversation)
     .delete(auth, idValidator, deleteConversation);
 router.get(
