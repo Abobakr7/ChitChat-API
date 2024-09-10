@@ -12,6 +12,10 @@ exports.getConversations = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
+    const count = await Conversation.countDocuments({
+        members: { $in: [req.user._id] },
+    });
+    const totalPages = Math.ceil(count / limit);
     const conversations = await Conversation.find({
         members: { $in: [req.user._id] },
     })
@@ -23,8 +27,8 @@ exports.getConversations = asyncHandler(async (req, res) => {
         .skip(skip);
     res.status(200).json({
         success: "success",
-        count: conversations.length,
-        data: conversations,
+        totalPages,
+        conversations,
     });
 });
 
@@ -41,7 +45,7 @@ exports.getConversation = asyncHandler(async (req, res) => {
     if (!conversation) {
         throw new ApiError(404, "Conversation not found");
     }
-    res.status(200).json({ success: "success", data: conversation });
+    res.status(200).json({ success: "success", conversation });
 });
 
 /**
@@ -72,7 +76,7 @@ exports.createConversation = asyncHandler(async (req, res) => {
     const newConversation = await Conversation.create({
         members: [req.user._id, recieverId],
     });
-    res.status(201).json({ success: "success", data: newConversation });
+    res.status(201).json({ success: "success", conversation: newConversation });
 });
 
 /**
@@ -106,7 +110,7 @@ exports.getMessages = asyncHandler(async (req, res) => {
     res.status(200).json({
         status: "success",
         length: messages.length,
-        data: messages,
+        messages,
     });
 });
 
@@ -126,5 +130,5 @@ exports.sendMessage = asyncHandler(async (req, res) => {
         conversationId,
         content,
     });
-    res.status(201).json({ success: "success", data: message });
+    res.status(201).json({ success: "success", message });
 });
