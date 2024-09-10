@@ -21,16 +21,24 @@ const chatRoute = require("../routes/chatRoute");
 
 const app = express();
 const server = createServer(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+    cors: {
+        origin: process.env.FE_URL,
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
+});
 
 // connect to MongoDB and Redis
 MongoConnect();
 RedisConnect();
 
-app.use(cors({
-    origin: process.env.FE_URL,
-    credentials: true
-}));
+app.use(
+    cors({
+        origin: process.env.FE_URL,
+        credentials: true,
+    })
+);
 
 // middleware
 if (process.env.NODE_ENV === "development") {
@@ -57,6 +65,7 @@ io.on("connection", (socket) => {
     socket.on("connection", async (userId) => {
         socket.userId = userId;
         await setOnlineUser(userId, socket.id);
+        console.log(`User ${userId} connected with socket ID ${socket.id}`);
     });
 
     socket.on("sendMessage", async (data) => {
@@ -71,6 +80,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", async () => {
+        console.log(`User ${socket.userId} disconnected`);
         await removeOnlineUser(socket.userId);
     });
 });
