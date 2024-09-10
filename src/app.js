@@ -62,26 +62,37 @@ app.all("*", (req, res, next) => {
 io.on("connection", (socket) => {
     console.log("New connection");
 
-    socket.on("connection", async (userId) => {
+    socket.on("addUser", async (userId) => {
         socket.userId = userId;
-        await setOnlineUser(userId, socket.id);
-        console.log(`User ${userId} connected with socket ID ${socket.id}`);
+        try {
+            await setOnlineUser(userId, socket.id);
+            console.log(`User ${userId} connected with socket ID ${socket.id}`);
+        } catch (err) {
+            console.log(`Error adding user ${userId} to online users`);
+        }
     });
 
     socket.on("sendMessage", async (data) => {
         const { receiverId, message } = data;
-        const receiverSocketId = await getOnlineUser(receiverId);
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("message", {
-                senderId: data.senderId,
-                message,
-            });
+        try {
+            const receiverSocketId = await getOnlineUser(receiverId);
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit("message", message);
+            }
+        } catch (err) {
+            console.log(`Error sending message to user ${receiverId}`);
         }
     });
 
     socket.on("disconnect", async () => {
-        console.log(`User ${socket.userId} disconnected`);
-        await removeOnlineUser(socket.userId);
+        try {
+            console.log(`User ${socket.userId} disconnected`);
+            await removeOnlineUser(socket.userId);
+        } catch (err) {
+            console.log(
+                `Error removing user ${socket.userId} from online users`
+            );
+        }
     });
 });
 
