@@ -104,7 +104,7 @@ exports.getMessages = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
     const messages = await Message.find({ conversationId: convoId })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: 1 })
         .limit(limit)
         .skip(skip);
     res.status(200).json({
