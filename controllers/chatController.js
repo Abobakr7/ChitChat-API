@@ -23,6 +23,7 @@ exports.getConversations = asyncHandler(async (req, res) => {
             path: "members",
             select: "-password -__v -friends -email -updatedAt -resetPasswordToken",
         })
+        .sort({ updatedAt: -1 })
         .limit(limit)
         .skip(skip);
     res.status(200).json({
@@ -103,13 +104,16 @@ exports.getMessages = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit) || 30;
     const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
+    const count = await Message.countDocuments({ conversationId: convoId });
+    const totalPages = Math.ceil(count / limit);
     const messages = await Message.find({ conversationId: convoId })
-        .sort({ createdAt: 1 })
+        .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip);
+    messages.reverse();
     res.status(200).json({
         status: "success",
-        length: messages.length,
+        totalPages,
         messages,
     });
 });
