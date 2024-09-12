@@ -84,6 +84,16 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("friendStatus", async (friendId, cb) => {
+        try {
+            const friendSocketId = await getOnlineUser(friendId);
+            cb(friendSocketId ? true : false);
+        } catch (err) {
+            console.log(`Error sending friend status to user ${friendId}`);
+            cb(false);
+        }
+    });
+
     socket.on("disconnect", async () => {
         try {
             console.log(`User ${socket.userId} disconnected`);
