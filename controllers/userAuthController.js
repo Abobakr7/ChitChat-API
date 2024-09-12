@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
  * @access  Public
  */
 exports.signup = asyncHandler(async (req, res) => {
+    req.body.avatar = (null || undefined) ?? "/src/assets/anon.png";
     const user = await User.create(req.body);
     const token = jwt.sign(
         { _id: user._id.toString() },
